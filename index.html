@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Setups F1">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#eef0f2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0f1215" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>:root{color-scheme:light;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);background:var(--bg)}body{margin:0}[hidden]{display:none!important}</style>
+<title>Garaje de Setups F1 25</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap">
+<style>
+/* Layout: selectores en columna izquierda (muro de boxes), hoja de reglaje a la derecha, igual que el menú del garaje */
+:root{
+  --bg:#eef0f2; --panel:#ffffff; --fg:#14181d; --muted:#5a636e; --line:#d5dae0; --track:#e1e5e9;
+  --sel:#14181d; --selfg:#ffffff; --calc:#9a5b00; --team:#ff8000;
+  --disp:"Barlow Condensed","Arial Narrow",sans-serif; --body:"Barlow",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f1215; --panel:#181c21; --fg:#edf0f3; --muted:#9aa4af; --line:#2b323a; --track:#2a3038;
+  --sel:#edf0f3; --selfg:#0f1215; --calc:#f2b34c; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1215; --panel:#181c21; --fg:#edf0f3; --muted:#9aa4af; --line:#2b323a; --track:#2a3038;
+  --sel:#edf0f3; --selfg:#0f1215; --calc:#f2b34c; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:15px/1.5 var(--body)}
+.wrap{max-width:1120px;margin:0 auto;padding-block:24px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1{font:700 clamp(32px,6vw,52px)/1 var(--disp);margin:0;text-transform:uppercase;text-wrap:balance}
+.sub{color:var(--muted);margin:8px 0 20px;max-width:65ch}
+.grid{display:grid;grid-template-columns:300px minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:820px){.grid{grid-template-columns:minmax(0,1fr)}}
+.controls{display:flex;flex-direction:column;gap:16px}
+fieldset{border:0;margin:0;padding:0;min-width:0}
+legend,.lbl{display:block;font:600 14px var(--disp);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;padding:0}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:4px}
+button{font:600 17px var(--disp);color:var(--fg);background:var(--panel);border:1px solid var(--line);border-radius:3px;padding:8px 6px;cursor:pointer}
+button[aria-pressed="true"]{background:var(--sel);color:var(--selfg);border-color:var(--sel)}
+button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--team);outline-offset:2px}
+.cars{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.cars button{display:flex;gap:8px;align-items:center;text-align:left;padding:6px 8px;line-height:1.1}
+.cars i{width:5px;align-self:stretch;background:var(--c);flex:none}
+.cars small{display:block;font:400 12px var(--body);opacity:.75}
+select{width:100%;font:600 17px var(--disp);padding:9px 8px;background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:3px}
+.check{display:flex;gap:8px;align-items:flex-start;font-size:14px}
+.check input{margin-top:3px;accent-color:var(--team)}
+.sheet{background:var(--panel);border:1px solid var(--line);border-top:6px solid var(--team);min-width:0}
+.head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;padding:16px 18px;border-bottom:1px solid var(--line)}
+.head h2{font:700 30px/1.05 var(--disp);margin:0;text-transform:uppercase}
+.head p{margin:4px 0 0;color:var(--muted)}
+.head button{align-self:flex-start;padding:8px 16px}
+.notice{margin:0;padding:10px 18px;border-bottom:1px solid var(--line);font-size:14px;color:var(--calc);font-weight:500}
+.brief{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;padding:12px 18px;border-bottom:1px solid var(--line);margin:0}
+.brief dt{font:600 13px var(--disp);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.brief dd{margin:0;font-weight:600}
+.cats{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));column-gap:32px;padding:4px 18px 8px}
+.cat h3{font:700 18px var(--disp);text-transform:uppercase;letter-spacing:.04em;margin:16px 0 4px;border-bottom:2px solid var(--fg);padding-bottom:3px}
+.row{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:10px;padding:6px 0;border-bottom:1px solid var(--line);align-items:baseline}
+.row b{font:700 22px/1 var(--disp);font-variant-numeric:tabular-nums;text-align:right}
+.row.calc b{color:var(--calc)}
+.row.calc b::before{content:"≈ ";font-weight:500;font-size:15px}
+.bar{grid-column:1/-1;height:4px;background:var(--track);margin-top:5px;position:relative}
+.bar span{position:absolute;top:-3px;width:4px;height:10px;margin-left:-2px;background:var(--team)}
+.legend{padding:10px 18px 16px;font-size:13px;color:var(--muted);margin:0}
+.legend strong{color:var(--calc)}
+.row em,.legend em{font:600 12px var(--disp);font-style:normal;text-transform:uppercase;letter-spacing:.06em;border:1px solid var(--muted);border-radius:3px;padding:0 5px;white-space:nowrap}
+.row em{margin-left:6px;color:var(--muted)}
+details{margin-top:20px;background:var(--panel);border:1px solid var(--line);padding:12px 18px}
+summary{font:700 18px var(--disp);text-transform:uppercase;cursor:pointer}
+details p,details li{max-width:75ch}
+a{color:inherit}
+textarea{width:100%;height:220px;margin:0;font:13px monospace;background:var(--bg);color:var(--fg);border:1px solid var(--line);padding:10px}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <h1>Garaje de Setups F1 25</h1>
+  <p class="sub">Temporadas 2025 y 2026. Elige coche, circuito, sesión y clima, y copia los valores al menú de reglajes. Página no oficial hecha por un aficionado.</p>
+  <div class="grid">
+    <div class="controls">
+      <fieldset><legend>Temporada</legend><div class="seg" id="season"></div></fieldset>
+      <div><label class="lbl" for="track">Circuito</label><select id="track"></select></div>
+      <fieldset><legend>Modo</legend><div class="seg" id="mode"></div></fieldset>
+      <div class="controls" id="weekend">
+      <fieldset><legend>Setups de internet (sin cambios)</legend><div class="seg" id="web"></div></fieldset>
+      <fieldset><legend>Mis ajustes</legend><div class="seg" id="mio"></div></fieldset>
+      <div class="controls" id="mineOnly">
+      <fieldset><legend>Sesión</legend><div class="seg" id="session"></div></fieldset>
+      <label class="check"><input type="checkbox" id="tweak" checked><span>Aplicar la variante del coche. Desmárcala para ver el setup sin variante.</span></label>
+      </div>
+      </div>
+      <fieldset><legend>Coche</legend><div class="cars" id="cars"></div><p id="samecar" style="margin:8px 0 0;font-size:14px;color:var(--muted)" hidden>En este modo los números son iguales para todos los coches.</p></fieldset>
+    </div>
+    <main class="sheet" aria-live="polite">
+      <div class="head">
+        <div><h2 id="title"></h2><p id="meta"></p></div>
+        <button type="button" id="copy">Copiar setup</button>
+      </div>
+      <p class="notice" id="notice" hidden></p>
+      <dl class="brief" id="brief"></dl>
+      <div class="cats" id="cats"></div>
+      <p class="legend" id="legend">Número normal: dato de la comunidad, redondeado al paso del juego. <strong>≈ Número marcado</strong>: calculado o estimado para esta página, sin probar en pista. <em>Tu ajuste</em>: cambiado a tu preferencia.</p>
+      <div id="fallback" hidden style="padding:0 18px 18px"><label class="lbl" for="txt">Selecciona y copia</label><textarea id="txt" readonly></textarea></div>
+    </main>
+  </div>
+
+  <details>
+    <summary>De dónde salen los números</summary>
+    <ul>
+      <li><b>Hotlap:</b> un solo reglaje por circuito para contrarreloj, en seco, sin cambios míos. Sale de los 100 setups más rápidos registrados en F1Laps, la misma base que Internet en seco.</li>
+      <li><b>Setups de internet:</b> datos de la comunidad de F1Laps, publicados por SOLOX (octubre 2026), sin cambios. Cambian con los parches. En 2026 faltan algunos de lluvia.</li>
+      <li><b>Mis ajustes:</b> parten de esos datos. Diferencial con acelerador en 100, reparto de frenada máximo 56 y equilibrio hacia el sobreviraje (+2 de alerón delantero o -2 atrás si ya topa, -2 barra delantera, +1 trasera, -5 diferencial sin acelerador).</li>
+      <li><b>Calculado:</b> carrera (+1 alerón trasero, un poco más de altura, menos presión), tormenta (más alerón y altura, más blando) y lo que no tiene dato publicado.</li>
+      <li><b>Variante por coche:</b> estilos que yo asigné. No son datos oficiales de cada escudería.</li>
+    </ul>
+    <p>Fuentes: <a href="https://solox.gg/f1-25-setups/">SOLOX, setups de F1 25</a>, <a href="https://www.f1laps.com/f1-26/setups/">F1Laps</a>, <a href="https://www.planetf1.com/news/f1-2026-cars-chassis-names">PlanetF1, nombres de los coches 2026</a>, <a href="https://www.mercedesamgf1.com/news/sepang-international-circuit-to-host-2026-bahrain-grand-prix-in-malaysia">Mercedes, calendario 2026 con Sepang</a>.</p>
+  </details>
+  <details>
+    <summary>Si el coche no se siente bien</summary>
+    <ul>
+      <li><b>No gira en curvas lentas:</b> baja 5 el diferencial sin acelerador y ablanda la barra delantera.</li>
+      <li><b>No gira en curvas rápidas:</b> sube 1 o 2 el alerón delantero.</li>
+      <li><b>Se va de atrás al entrar:</b> sube 5 el diferencial sin acelerador o mueve la frenada 1% hacia delante, sin pasar de 56.</li>
+      <li><b>Se va de atrás al salir:</b> ablanda la barra trasera y pisa el acelerador de forma más progresiva.</li>
+      <li><b>Bloqueas las delanteras:</b> mueve la frenada 1% hacia atrás o baja la presión de frenos a 95%.</li>
+      <li><b>Toca el suelo:</b> sube la altura 1 o 2 clics, primero atrás.</li>
+    </ul>
+    <p>Cambia una sola cosa, da tres vueltas limpias y decide. Si juegas con parc fermé activado, después de clasificar casi todo el setup queda bloqueado; en ese caso usa el de carrera desde la clasificación.</p>
+  </details>
+</div>
+
+<script>
+/* Cada cadena: AD AT difOn difOff caídaD caídaT toeD toeT suspD suspT barD barT altD altT presFrenos reparto psiD psiT. G = geometría habitual. "-" = sin dato */
+const T={
+au:{n:"Australia",c:"Albert Park",d25:"23 17 90 35 G 41 3.5 12 11 21 47.5 100 54 29.5 21.3",w25:"23 19 70 45 G 39.5 5 12 9 21 49 100 55 29 21.3",d26:"25 25 70 45 G 37 16 12 9 22 48 100 56 25.9 21.3",w26:"27 25 60 40 - - - - 37 14 9 9 - - - 57 - -"},
+cn:{n:"China",c:"Shanghái",d25:"29 23 90 25 G 37 1 1 8 22 45 100 54 26 22",w25:"27 23 90 35 G 41 1 4 8 22 47 100 54 26.95/26.5 21.3",d26:"41 28.5 80 45 G 41 16 1 9 22 44.5 100 56 27.5/27 23",w26:"35 28 75 50 G 40 16 7 9 22 47 100 57 26.8/25.4 22.6/22"},
+jp:{n:"Japón",c:"Suzuka",d25:"31 12 100 20 G 41 1 1 15 22 41 100 54 29.5 21.7",w25:"30 23 90 35 G 41 6 6 12 22 45 100 55 27.6 21",d26:"39.5 22 100 40 G 41 14 4.5 9 23 46 100 56 27.5 22",w26:"28 24.5 60 42.5 -3.5 -2 .01 .12 37 15 7 8 24 48 99 57 27.5 21.3"},
+bh:{n:"Baréin",c:"Sakhir",d25:"27 23 100 30 G 41 10 9 16 21 46 100 54 26.5 21.1",w25:"25 25 55 55 -3.45 -1.95 .04 .15 37 19 15 10 22 50 100 58 24.2 21.1",d26:"39 29 100 40 G 38 16 10.5 10 20 44.5 100 56 25 21.3/21"},
+sa:{n:"Arabia Saudita",c:"Yeda",d25:"12 5.5 100 20 G 41 10 15 10 20 44 100 54 26.5 21.55",w25:"12 12 87.5 55 -3.4 -1.9 .04 .14 37 19 15 9.5 23 47.5 100 56.5 24.3 21.5",d26:"28 9.5 100 30 G 41 9 3 8 22 45 100 56 27.9/28 21.6"},
+mi:{n:"Miami",c:"Miami International Autodrome",d25:"12 10 100 35 G 41 5 8.5 12 21 46 100 55 29 21.3",w25:"12 12 82.5 40 G 39 8 10 10 21 47 100 55 25 21.5",d26:"37.5 20 100 47.5 G 41 4 1 11 24.5 48 100 57 26 20.5",w26:"24.5 12 67.5 50 G 40 10 7 10 24 48 100 57 26 21.5"},
+im:{n:"Emilia-Romaña",c:"Imola",d25:"37 31.5 90 50 G 40 3 11 19 23 50 100 54 24.2 21.3",w25:"27.5 23 80 50 G 37 10 13 9 24 50 100 55 24.2 21.3",d26:"50 31 100 20 G 41 2.5 1 11 22 48 100 56 27.5 23"},
+mc:{n:"Mónaco",c:"Montecarlo",d25:"50 50 90 30 G 39 15 8 8 22 49 100 54 22.7 20.5",w25:"50 50 80 30 G 39 11 12 9 22 50 100 54 22.7 20.5",d26:"50 50 75 30 G 38 5 2.5 5 23 51 100 56 24.2 20.5",w26:"50 50 75 30 G 35 7 3 5 24 50 100 56 23 20.5"},
+es:{n:"Barcelona-Cataluña",c:"Montmeló",d25:"36 30.5 100 30 G 39.5 2 6 10 20 47 100 54 29.5 20.9",w25:"35 32 70 30 G 38 4 10 10 21 47 100 54 28/27.5 21.55/21.25",d26:"40 30.5 80 40 G 40 17 9 11 22 46 100 56 25/24.2 20.9",w26:"41.5 34.5 72.5 40 G 39 15 9 12 22 46 100 56 24.2 20.9"},
+ca:{n:"Canadá",c:"Montreal",d25:"23 19 100 35 G 38 8 8 10.5 22 48 100 54 28.8 21.5",w25:"19.5 17 72.5 40 -3.5 -2 .01 .12 37 9 13 10 22 48 100 55 26 21.5",d26:"42 24 95 40 G 38 11 7 7 20.5 46 100 56 25.5 21.5",w26:"40 25 80 35 G 38 10 6.5 8 21 46 100 56 24.3 21.5"},
+at:{n:"Austria",c:"Red Bull Ring",d25:"22 16 100 30 G 39.5 3.5 6 8 22 47 100 55 29.5 21.85",w25:"24 16 85 32.5 G 40 4.5 7 9 22 47 100 55 27.5 21.5",d26:"40 17.5 95 35 G 41 17 13 10 22 47 100 57 25.25 21.5",w26:"32 18 90 35 G 38 17 11 8 22 48 100 57 24.3 21.5"},
+gb:{n:"Gran Bretaña",c:"Silverstone",d25:"20 17 100 25 G 41 3 10 17.5 21 44 100 54 29.5 22.35",w25:"23 22 65 30 G 41 10 11 15 21 46 100 55 28.5/28.3 21.95",d26:"36 19 100 35 G 41 17.5 2 8 21 48 100 57 27.75/27.25 21.5",w26:"32 24 80 40 G 41 16 10.5 8 22 48.5 100 57 26/24.8 21.3"},
+be:{n:"Bélgica",c:"Spa-Francorchamps",d25:"6 1 100 30 -3.5 -2 .02 .1 40 1 5 20 22 40 100 54 27.6 26.5",w25:"9 3 90 30 G 40 1 6 20 22 45 100 54 29.5 25",d26:"17 1.5 100 35 G 40 10 5 9 23 47 100 57 26.8 22.5",w26:"16 5 60 40 -3.5 -2 .02 .1 38 11 9 8 23 48 100 57 24.5 21.5"},
+hu:{n:"Hungría",c:"Hungaroring",d25:"50 47 100 25 G 41 3.5 9 18 21 44 100 54 27 23",w25:"48 47 72.5 30 G 41 4 9 11 21 47 100 54 26.9 21.05/20.9",d26:"50 46 100 30 G 41 13 3 12 22 45 100 57 28 22",w26:"50 41 80 40 G 39 16 5 10 22 46 100 56 28 21.5"},
+nl:{n:"Países Bajos",c:"Zandvoort",d25:"47 41 100 20 G 41 1 7.5 20 22 42 100 51 29.5/28.85 20.9",w25:"40 37.5 75 30 -3.5 -2 .01 .11 38 5 12 12 24 49 100 55 24.2 20.9",d26:"50 38 100 30 G 41 20 9.5 16 21 50 100 56 24.2 20.9",w26:"48 38 80 35 G 39 18.5 10 13 22 50 100 56 24.2 20.9"},
+it:{n:"Italia",c:"Monza",d25:"0 0 87.5 30 G 39 4 9.5 14.5 22 48 100 55 29.5 22",w25:"0 0 80 30 G 41 3 9 14 21.5 48 100 55 27.5 22.15/22",d26:"16 0 100 32.5 G 41 4 2 15 23 48 100 57 29.5 26.5/25",w26:"10 0 80 40 -3.5 -2 .01 .11 38 4 5 10 23 48 100 57 27 23.3/23.1"},
+md:{n:"España (Madrid)",c:"Madring",d26:"50 35 100 30 G 41 3 1 8 22 51 100 56 - -"},
+az:{n:"Azerbaiyán",c:"Bakú",d25:"10 7 100 30 G 41 5 10 14 21 45 100 54 28.5 21.5",w25:"10 10.5 65 35 -3.4 -1.9 .02 .12 39 9 12 8 22.5 48 98 55 24.3 21.5",d26:"20 7 90 35 G 39 16 5 4 22 46 100 57 24.3 21.5",w26:"23 10 90 35 G 38 16 5 7 22 46 100 56 25.6 21.5"},
+sg:{n:"Singapur",c:"Marina Bay",d25:"50 47 100 25 G 41 1 14 19 21 48 100 54 29.5 20.9",w25:"50 47 80 25 G 41 1 15 18 21 50 100 54 23.7 21.3",d26:"50 50 100 30 G 41 3.5 4 12 21 48 100 56 23.7/24 20.9",w26:"50 49 80 30 -3.5 -2 .01 .11 38 4 5 10 22 48 99 56 23.7 20.9"},
+us:{n:"Estados Unidos",c:"Austin (COTA)",d25:"38.5 36 100 30 G 41 3 9 15.5 20 46 100 54 29 20.9",w25:"39.5 36 80 30 G 41 8 9 15 21 48 100 54 28.75 20.9",d26:"48 37.5 100 40 G 38 11 6 8 20 46 100 56 28 21.5",w26:"42 37 70 40 G 37 11 12 11 21 48 100 56 28 20.9"},
+mx:{n:"Ciudad de México",c:"Hermanos Rodríguez",d25:"33 23 100 27.5 G 38.5 1 4 20 20 43 100 53 28 20.9",w25:"36 36 72.5 40 G 37 6 14.5 12 23 49 100 56 24.2 21.15",d26:"47 34 92.5 40 G 37 17 11 8 23 46 100 56 24.2 20.9",w26:"44 34 100 30 G 37 14 11 9 23 48 100 56 25 21.9"},
+br:{n:"São Paulo",c:"Interlagos",d25:"27 20 100 25 G 41 3 3 18 21 41.5 100 52 29.5 21.3",w25:"28 23 90 25 G 41 1.5 4 15 21 44 100 53 29 21.3",d26:"48 25 85 35 G 40 16 3 7 22 46 100 56 28 21",w26:"35 25 80 35 G 37 16 5 6 22 48 98 56 28 21.7"},
+lv:{n:"Las Vegas",c:"Las Vegas Strip",d25:"1 0 100 25 G 37 6 5 18.5 24 48 100 54 24.5 22",w25:"9 8 85 35 G 37 8 8 11 23 48 100 55 24.5 21.5",d26:"17 0 95 40 G 39 10 7 7 23 47 100 57 25.5 22"},
+qa:{n:"Catar",c:"Lusail",d25:"38 35 100 25 G 41 4 4 19 21 45 100 53 29.5 22.85/22.6",w25:"35 36 90 42.5 G 39 4.5 15 12 21.5 47 100 54.5 27/25.85 22.2/21.2",d26:"45 32 100 40 G 39 12 8 10 22 47 100 56 27.45/26.45 21.3/21"},
+ae:{n:"Abu Dabi",c:"Yas Marina",d25:"25.5 23 100 30 G 41 4 4.5 15 20 46 100 54 29.5 21.3",w25:"29 27.5 85 30 G 41 1 1 9 20 46 100 54 29 21.3",d26:"46.5 23 100 35 G 40 13 11 6 21 45 100 57 27/27.5 21"},
+my:{n:"Baréin en Malasia",c:"Sepang",est:"40 28 95 35 G 40 12 6 9 22 47 100 56 25.3 21.3"},
+};
+const CAL={
+ "2025":[["Calendario 2025","au cn jp bh sa mi im mc es ca at gb be hu nl it az sg us mx br lv qa ae"]],
+ "2026":[["Calendario 2026","au cn jp mi ca mc es at gb be hu nl it md az my sg us mx br lv qa ae"],["Extras fuera del calendario actual","bh sa im"]]
+};
+const NOTES={
+ my:"Sepang está en el calendario real de 2026, pero no viene en F1 25. Todo este setup es estimado (solo serviría con un mod no oficial).",
+ bh:"En 2026 la carrera en Sakhir no se corrió: el GP de Baréin se mudó a Sepang. El circuito sí está en el juego.",
+ sa:"La carrera de Yeda 2026 se canceló. El circuito sí está en el juego.",
+ im:"Imola salió del calendario 2026. Se incluye como extra."
+};
+/* Variantes por coche: estilos asignados para esta página */
+const V={
+ eq:["Equilibrado","Usa el setup base sin cambios.",{}],
+ vivo:["Entrada viva","Más giro al entrar en la curva.",{fw:1,doff:-5}],
+ morro:["Morro afilado","Delantera más directa. Pide manos suaves.",{fw:2,rarb:1}],
+ freno:["Apoyo delantero","Más agarre del morro en el apoyo.",{fs:-1,farb:-1}],
+ trac:["Trasera firme","Más giro a media curva.",{rs:2}],
+ recta:["Poco arrastre","Algo más de velocidad en recta.",{fw:-1,rw:-2,bb:-1}],
+ atras:["Morro bajo","Delantera más baja y trasera algo más dura.",{frh:-1,rs:1}],
+ gira:["Rotación","Gira más en curvas lentas.",{farb:-2,rarb:1,doff:-5}],
+ punta:["Velocidad punta","Menos alerón en ambos ejes.",{fw:-2,rw:-3,rrh:-1}],
+ piano:["Pianos","Más blando y alto para atacar los pianos.",{fs:-2,rs:-1,frh:1,rrh:1}],
+ facil:["Cola suelta","La trasera ayuda a girar el coche.",{rarb:2,doff:-5}]
+};
+const CARS={
+ "2025":[["McLaren","MCL39","#ff8000","eq"],["Ferrari","SF-25","#e8002d","vivo"],["Red Bull","RB21","#3671c6","morro"],["Mercedes","W16","#17b8a6","freno"],["Aston Martin","AMR25","#229971","trac"],["Alpine","A525","#e56aa8","recta"],["Haas","VF-25","#8a9199","atras"],["Racing Bulls","VCARB 02","#6692ff","gira"],["Williams","FW47","#1857c4","punta"],["Kick Sauber","C45","#35b535","piano"]],
+ "2026":[["McLaren","MCL40","#ff8000","eq"],["Ferrari","SF-26","#e8002d","vivo"],["Red Bull","RB22","#3671c6","morro"],["Mercedes","W17","#17b8a6","freno"],["Aston Martin","AMR26","#229971","trac"],["Alpine","A526","#e56aa8","recta"],["Haas","VF-26","#8a9199","atras"],["Racing Bulls","VCARB 03","#6692ff","gira"],["Williams","FW48","#1857c4","punta"],["Audi","R26","#d4462a","piano"],["Cadillac","MAC-26","#a08f6c","facil"]]
+};
+const PILOTO={"McLaren":"Norris","Mercedes":"Kimi Antonelli","Ferrari":"Leclerc","Williams":"Sainz","Alpine":"Gasly","Cadillac":"Pérez","Racing Bulls":"Lawson","Aston Martin":"Alonso","Red Bull":"Verstappen","Audi":"Hülkenberg","Kick Sauber":"Hülkenberg","Haas":"Bearman"};
+const SPEC=[
+ ["Aerodinámica",[["fw","Alerón delantero",0,50],["rw","Alerón trasero",0,50]]],
+ ["Transmisión",[["don","Diferencial con acelerador",10,100,"%"],["doff","Diferencial sin acelerador",10,100,"%"],["eb","Frenado motor",0,100,"%"]]],
+ ["Geometría",[["fc","Caída delantera",-3.5,-2.5,"°",2],["rc","Caída trasera",-2.2,-0.7,"°",2],["ft","Convergencia delantera",0,0.5,"°",2],["rt","Convergencia trasera",0,0.5,"°",2]]],
+ ["Suspensión",[["fs","Suspensión delantera",1,41],["rs","Suspensión trasera",1,41],["farb","Barra estabilizadora delantera",1,21],["rarb","Barra estabilizadora trasera",1,21],["frh","Altura delantera",10,40],["rrh","Altura trasera",40,100]]],
+ ["Frenos",[["bp","Presión de frenos",80,100,"%"],["bb","Reparto de frenada delantero",50,70,"%"]]],
+ ["Neumáticos",[["fp","Delantero izquierdo y derecho",22.5,29.5," psi",1],["rp","Trasero izquierdo y derecho",20.5,26.5," psi",1]]]
+];
+const RANGE={};SPEC.forEach(c=>c[1].forEach(r=>RANGE[r[0]]=r));
+
+function snap(k,v){
+  const r=RANGE[k];
+  if(k==="don"||k==="doff") v=Math.round(v/5)*5;
+  else { const m=Math.pow(10,r[5]||0); v=Math.round(v*m+(v<0?-1e-7:1e-7))/m; }
+  return Math.min(r[3],Math.max(r[2],v));
+}
+const ORD=["fw","rw","don","doff","fc","rc","ft","rt","fs","rs","farb","rarb","frh","rrh","bp","bb","fp","rp"];
+function parse(str){
+  const v=str.replace("G","-3.5 -2 0 .1").split(" "), o={};
+  ORD.forEach((k,i)=>o[k]=v[i]==="-"?null:v[i].split("/").map(Number));
+  return o;
+}
+/* setup publicado, sin cambios */
+function pub(season,id,weather){
+  const str=T[id][(weather==="seco"?"d":"w")+season.slice(2)];
+  if(!str) return null;
+  const o=parse(str);
+  o.eb=(season==="2026"&&!(id==="au"&&weather!=="seco"))?[50]:null;
+  return o;
+}
+/* mis ajustes */
+function build(season,id,session,weather,carIdx,useTweak){
+  const s={}, wet=weather!=="seco";
+  const put=(k,v,real)=>s[k]={v:v,real:real};
+  const add=(obj)=>{for(const k in obj){ if(!obj[k]) continue; const before=snap(k,s[k].v), after=s[k].v+obj[k]; if(snap(k,after)!==before) s[k].real=false; s[k].v=snap(k,after); }};
+  const dry=pub(season,id,"seco"), alt=dry?null:parse(T[id].est);
+  ORD.forEach(k=>{
+    if(dry&&dry[k]) put(k,dry[k][0],true);
+    else if(alt) put(k,alt[k][0],false);
+    else put(k,k==="fp"?25.3:21.3,false);
+  });
+  put("eb",50,!!(dry&&dry.eb));
+  if(wet){
+    add({fw:2,rw:4,don:-15,rs:-4,farb:2,rarb:-1,frh:1,rrh:1,fp:-0.8});
+    for(const k in s) s[k].real=false;
+    const w=pub(season,id,"mojado");
+    if(w) for(const k in w) if(w[k]) put(k,w[k][0],true);
+  }
+  if(weather==="tormenta") add({fw:3,rw:4,don:-15,doff:5,fs:-4,rs:-2,farb:-2,rarb:-2,frh:2,rrh:3,bb:1,bp:-5,fp:0.4,rp:0.2});
+  if(session==="carrera") add({rw:1,don:-5,frh:1,rrh:1,fp:-0.3,rp:-0.4});
+  if(useTweak) add(V[CARS[season][carIdx][3]][2]);
+  for(const k in s) s[k].v=snap(k,s[k].v);
+  /* preferencias fijas: diferencial con acelerador 100 y reparto de frenada máximo 56 */
+  const mine=(k,v)=>{ if(s[k].v!==v) s[k]={v:v,real:false,mine:true}; };
+  mine("don",100);
+  /* sobreviraje antes que subviraje: más morro y rotación; si el alerón delantero ya topa en 50, se quita atrás */
+  const nudge=(k,d)=>mine(k,snap(k,s[k].v+d));
+  const extra=Math.max(0,s.fw.v+2-50);
+  nudge("fw",2); if(extra) nudge("rw",-extra);
+  nudge("farb",-2); nudge("rarb",1); nudge("doff",-5);
+  if(s.bb.v>56) mine("bb",56);
+  return s;
+}
+
+const state={season:"2026",track:"qa",mode:"finde",source:"web",session:"quali",weather:"seco",car:0,tweak:true};
+try{ Object.assign(state,JSON.parse(localStorage.getItem("garaje")||"{}")); }catch(e){}
+const ids=season=>CAL[season].flatMap(g=>g[1].split(" "));
+function fix(){
+  if(!CARS[state.season]) state.season="2026";
+  if(!ids(state.season).includes(state.track)) state.track="au";
+  if(!CARS[state.season][state.car]) state.car=0;
+  if(!["quali","carrera"].includes(state.session)) state.session="quali";
+  if(!["seco","mojado","tormenta"].includes(state.weather)) state.weather="seco";
+  if(state.source!=="mio") state.source="web";
+  if(state.mode!=="hot") state.mode="finde";
+}
+const $=id=>document.getElementById(id);
+let LEG="";
+const fmt=(k,v)=>{const r=RANGE[k];return v.toFixed(r[5]||0)+(r[4]||"");};
+let text="";
+
+function seg(el,opts,key){
+  el.replaceChildren(...opts.map(([val,label])=>{
+    const b=document.createElement("button");b.type="button";b.textContent=label;
+    b.setAttribute("aria-pressed",state[key]===val);
+    b.onclick=()=>{
+      if(key==="season"&&state.season!==val){const name=CARS[state.season][state.car][0].replace("Kick Sauber","Audi");const want=val==="2025"&&name==="Audi"?"Kick Sauber":name;state.car=Math.max(0,CARS[val].findIndex(c=>c[0]===want));}
+      state[key]=val;render();
+      const again=[...el.children].find(x=>x.textContent===label);if(again)again.focus();
+    };
+    return b;
+  }));
+}
+function render(){
+  fix();
+  seg($("season"),[["2025","2025"],["2026","2026"]],"season");
+  seg($("session"),[["quali","Clasificación"],["carrera","Carrera"]],"session");
+  seg($("mode"),[["finde","Fin de semana"],["hot","Hotlap"]],"mode");
+  $("weekend").hidden=state.mode==="hot";
+  ["web","mio"].forEach(src=>$(src).replaceChildren(...[["seco","Seco"],["mojado","Mojado"],["tormenta","Tormenta"]].map(([w,label])=>{
+    const b=document.createElement("button");b.type="button";b.textContent=label;
+    b.setAttribute("aria-pressed",state.source===src&&state.weather===w);
+    b.onclick=()=>{state.source=src;state.weather=w;render();[...$(src).children].find(x=>x.textContent===label).focus();};
+    return b;
+  })));
+  $("mineOnly").hidden=state.source==="web";
+  $("copy").hidden=false;
+  $("track").replaceChildren(...CAL[state.season].map(([label,list])=>{
+    const g=document.createElement("optgroup");g.label=label;
+    list.split(" ").forEach(id=>g.append(new Option(T[id].n+" · "+T[id].c,id,false,id===state.track)));
+    return g;
+  }));
+  $("cars").replaceChildren(...CARS[state.season].map((c,i)=>{
+    const b=document.createElement("button");b.type="button";b.style.setProperty("--c",c[2]);
+    b.innerHTML="<i></i><span>"+c[0]+"<small>"+PILOTO[c[0]]+" · "+c[1]+"</small></span>";
+    b.setAttribute("aria-pressed",i===state.car);
+    b.onclick=()=>{state.car=i;render();$("cars").children[i].focus();};
+    return b;
+  }));
+  $("tweak").checked=state.tweak;
+  $("samecar").hidden=!(state.mode==="hot"||state.source==="web");
+  if(state.mode==="hot"||state.source==="web"){ renderWeb(state.mode==="hot"); return; }
+  const car=CARS[state.season][state.car], t=T[state.track], v=V[car[3]];
+  document.documentElement.style.setProperty("--team",car[2]);
+  const ses=state.session==="quali"?"Clasificación":"Carrera";
+  const wx={seco:"Seco",mojado:"Mojado",tormenta:"Tormenta"}[state.weather];
+  $("title").textContent=t.n+" · "+ses+" · "+wx;
+  $("legend").innerHTML=LEG;
+  $("meta").textContent=car[0]+" "+car[1]+" · "+PILOTO[car[0]]+" · "+t.c+" · Temporada "+state.season;
+  const note=state.season==="2026"?NOTES[state.track]:"";
+  $("notice").hidden=!note;$("notice").textContent=note||"";
+  const tyre=state.weather==="mojado"?"Intermedios":state.weather==="tormenta"?"Lluvia extrema":state.session==="quali"?"Blandos":"Según tu estrategia";
+  const fuel=state.session==="quali"?"La mínima para tu tanda":"La que recomiende el juego";
+  const brief=[["Neumáticos",tyre],["Gasolina",fuel],["Variante del coche",state.tweak?v[0]+". "+v[1]:"Desactivada (setup base)"]];
+  $("brief").innerHTML=brief.map(([a,b])=>"<div><dt>"+a+"</dt><dd>"+b+"</dd></div>").join("");
+  const s=build(state.season,state.track,state.session,state.weather,state.car,state.tweak);
+  $("cats").innerHTML=SPEC.map(([cat,rows])=>"<section class='cat'><h3>"+cat+"</h3>"+rows.map(([k,label,min,max])=>{
+    const p=(s[k].v-min)/(max-min)*100;
+    const kind=s[k].mine?" mine":s[k].real?"":" calc";
+    return "<div class='row"+kind+"'"+(kind===" calc"?" title='Calculado o estimado'":"")+"><span>"+label+(s[k].mine?" <em>tu ajuste</em>":"")+"</span><b>"+fmt(k,s[k].v)+"</b><div class='bar' aria-hidden='true'><span style='left:"+p+"%'></span></div></div>";
+  }).join("")+"</section>").join("");
+  text=$("title").textContent+"\n"+$("meta").textContent+"\nNeumáticos: "+tyre+"\n"+SPEC.map(([cat,rows])=>"\n"+cat.toUpperCase()+"\n"+rows.map(r=>r[1]+": "+fmt(r[0],s[r[0]].v)+(s[r[0]].mine?" (tu ajuste)":s[r[0]].real?"":" (estimado)")).join("\n")).join("\n");
+  done();
+}
+function done(){
+  $("fallback").hidden=true;$("copy").textContent="Copiar setup";
+  try{localStorage.setItem("garaje",JSON.stringify(state));}catch(e){}
+}
+function renderWeb(hot){
+  const t=T[state.track], w=hot?"seco":state.weather;
+  const car=CARS[state.season][state.car];
+  document.documentElement.style.setProperty("--team",car[2]);
+  const wx={seco:"Seco",mojado:"Mojado",tormenta:"Tormenta"}[w];
+  const o=pub(state.season,state.track,w);
+  $("title").textContent=t.n+" · "+(hot?"Hotlap":wx+" · Internet");
+  $("meta").textContent=car[0]+" "+car[1]+" · "+PILOTO[car[0]]+" · "+t.c+" · Temporada "+state.season+" · "+(hot?"Reglaje universal para contrarreloj":"Igual para todos los coches");
+  const notes=[];
+  if(state.season==="2026"&&NOTES[state.track]) notes.push(NOTES[state.track].replace(" Todo este setup es estimado (solo serviría con un mod no oficial).",""));
+  if(!o) notes.push(hot?"No encontré un setup de hotlap publicado para este circuito.":"No encontré un setup publicado de "+(w==="seco"?"seco":"lluvia")+" para este circuito. Puedes probar Mis ajustes, que aquí es estimado.");
+  else if(w==="tormenta") notes.push("No encontré setups publicados solo para tormenta. Estos son los de mojado, sin cambios.");
+  $("notice").hidden=!notes.length;$("notice").textContent=notes.join(" ");
+  const tyre=hot?"Blandos":w==="seco"?"Blandos en clasificación":w==="mojado"?"Intermedios":"Lluvia extrema";
+  $("brief").innerHTML="<div><dt>Neumáticos</dt><dd>"+tyre+"</dd></div><div><dt>Fuente</dt><dd>F1Laps, recopilado por SOLOX (octubre 2026)</dd></div>";
+  const show=(k,a)=>{const r=RANGE[k], d=["fc","rc","ft","rt"].includes(k);return [...new Set(a)].map(x=>d?x.toFixed(2):String(x)).join(" / ")+(r[4]||"");};
+  const lab=(k,label)=>o&&o[k]&&o[k].length>1?label.replace("izquierdo y derecho","izq. / der."):label;
+  $("cats").innerHTML=!o?"":SPEC.map(([cat,rows])=>"<section class='cat'><h3>"+cat+"</h3>"+rows.map(([k,label,min,max])=>{
+    const a=o[k];
+    return "<div class='row'><span>"+lab(k,label)+"</span><b>"+(a?show(k,a):"sin dato")+"</b>"+(a?"<div class='bar' aria-hidden='true'><span style='left:"+((a[0]-min)/(max-min)*100)+"%'></span></div>":"")+"</div>";
+  }).join("")+"</section>").join("");
+  $("legend").textContent=o?"Valores tal como se publicaron. Los decimales son promedios de varios jugadores: usa el clic más cercano.":"";
+  $("copy").hidden=!o;
+  text=!o?"":$("title").textContent+"\n"+$("meta").textContent+"\n"+SPEC.map(([cat,rows])=>"\n"+cat.toUpperCase()+"\n"+rows.map(r=>lab(r[0],r[1])+": "+(o[r[0]]?show(r[0],o[r[0]]):"sin dato")).join("\n")).join("\n");
+  done();
+}
+$("track").onchange=e=>{state.track=e.target.value;render();};
+$("tweak").onchange=e=>{state.tweak=e.target.checked;render();};
+$("copy").onclick=()=>{
+  const fail=()=>{$("fallback").hidden=false;$("txt").value=text;$("txt").select();};
+  try{navigator.clipboard.writeText(text).then(()=>{$("copy").textContent="Copiado";},fail);}catch(e){fail();}
+};
+LEG=$("legend").innerHTML;
+render();
+</script>
+<script>if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});</script>
+</body>
+</html>
