@@ -67,6 +67,23 @@ select{width:100%;font:600 17px var(--disp);padding:9px 8px;background:var(--pan
 .bar span{position:absolute;top:-3px;width:4px;height:10px;margin-left:-2px;background:var(--team)}
 .legend{padding:10px 18px 16px;font-size:13px;color:var(--muted);margin:0}
 .legend strong{color:var(--calc)}
+#mode{grid-auto-flow:row;grid-template-columns:1fr 1fr}
+#timesbox{padding:0 18px 12px}
+#timesbox h3{font:700 18px var(--disp);text-transform:uppercase;letter-spacing:.04em;margin:18px 0 8px;border-bottom:2px solid var(--fg);padding-bottom:3px}
+#tform{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+#tform label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted);min-width:0}
+#tform .full{grid-column:1/-1}
+#tform input{width:100%;font:600 18px var(--body);padding:9px 8px;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:3px}
+#tform input:focus-visible,#timesbox select:focus-visible{outline:3px solid var(--team)}
+#tmsg{margin:0;font-size:14px;color:var(--calc);min-height:1.5em}
+.lap{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+.lap b{font:700 24px/1.1 var(--disp);font-variant-numeric:tabular-nums}
+.lap small{grid-column:1;color:var(--muted);overflow-wrap:anywhere}
+.lap button{grid-column:2;grid-row:1/span 2;font-size:15px}
+#timesbox ul{padding-left:20px;margin:0}
+#timesbox li{margin-bottom:8px}
+.row.long{grid-template-columns:minmax(0,1fr)}
+.row.long b{text-align:left;font-size:18px;line-height:1.2;margin-top:2px}
 .row em,.legend em{font:600 12px var(--disp);font-style:normal;text-transform:uppercase;letter-spacing:.06em;border:1px solid var(--muted);border-radius:3px;padding:0 5px;white-space:nowrap}
 .row em{margin-left:6px;color:var(--muted)}
 details{margin-top:20px;background:var(--panel);border:1px solid var(--line);padding:12px 18px}
@@ -86,6 +103,7 @@ textarea{width:100%;height:220px;margin:0;font:13px monospace;background:var(--b
       <fieldset><legend>Temporada</legend><div class="seg" id="season"></div></fieldset>
       <div><label class="lbl" for="track">Circuito</label><select id="track"></select></div>
       <fieldset><legend>Modo</legend><div class="seg" id="mode"></div></fieldset>
+      <fieldset id="padbox" hidden><legend>Perfil de mando</legend><div class="cars" id="pads"></div></fieldset>
       <div class="controls" id="weekend">
       <fieldset><legend>Setups de internet (sin cambios)</legend><div class="seg" id="web"></div></fieldset>
       <fieldset><legend>Mis ajustes</legend><div class="seg" id="mio"></div></fieldset>
@@ -104,6 +122,28 @@ textarea{width:100%;height:220px;margin:0;font:13px monospace;background:var(--b
       <p class="notice" id="notice" hidden></p>
       <dl class="brief" id="brief"></dl>
       <div class="cats" id="cats"></div>
+      <div id="timesbox" hidden>
+        <form id="tform" novalidate>
+          <label class="full">Tiempo de vuelta (123456 es 1:23.456)<input id="tlap" inputmode="numeric" autocomplete="off" placeholder="123456"></label>
+          <label>Sesión<select id="tses"><option>Hotlap</option><option>Clasificación</option><option>Carrera</option></select></label>
+          <label>Clima<select id="twx"><option>Seco</option><option>Mojado</option><option>Tormenta</option></select></label>
+          <label class="full">Nota (opcional)<input id="tnote" maxlength="80" autocomplete="off" placeholder="Setup usado, errores..."></label>
+          <button type="submit" class="full">Guardar tiempo</button>
+          <p id="tmsg" class="full" role="status"></p>
+        </form>
+        <h3>Mis tiempos aquí</h3><div id="tlist"></div>
+        <h3>Trazada en este circuito</h3><ul id="ttips"></ul>
+        <h3>Técnica con mando</h3>
+        <ul>
+          <li><b>Trazada base:</b> abre por fuera, toca el vértice y deja correr el coche hacia fuera. En curvas antes de una recta larga, entra un poco más tarde para salir antes con el acelerador.</li>
+          <li><b>Stick:</b> muévelo de forma progresiva. Con velocidad de giro en 160% un toque brusco descoloca el coche.</li>
+          <li><b>Freno:</b> aprieta fuerte en recta y suelta el gatillo poco a poco conforme giras.</li>
+          <li><b>Acelerador:</b> con el diferencial en 100 y un coche que sobrevira, pisa suave y a fondo solo cuando el volante ya se esté enderezando.</li>
+          <li><b>Si patinas al salir:</b> sube la linealidad de la aceleración poco a poco, de 6 hacia 20.</li>
+          <li><b>Pianos:</b> evita pisar el acelerador a fondo encima de los altos.</li>
+        </ul>
+        <h3>Mis mejores marcas</h3><div id="tbest"></div>
+      </div>
       <p class="legend" id="legend">Número normal: dato de la comunidad, redondeado al paso del juego. <strong>≈ Número marcado</strong>: calculado o estimado para esta página, sin probar en pista. <em>Tu ajuste</em>: cambiado a tu preferencia.</p>
       <div id="fallback" hidden style="padding:0 18px 18px"><label class="lbl" for="txt">Selecciona y copia</label><textarea id="txt" readonly></textarea></div>
     </main>
@@ -193,6 +233,28 @@ const CARS={
  "2026":[["McLaren","MCL40","#ff8000","eq"],["Ferrari","SF-26","#e8002d","vivo"],["Red Bull","RB22","#3671c6","morro"],["Mercedes","W17","#17b8a6","freno"],["Aston Martin","AMR26","#229971","trac"],["Alpine","A526","#e56aa8","recta"],["Haas","VF-26","#8a9199","atras"],["Racing Bulls","VCARB 03","#6692ff","gira"],["Williams","FW48","#1857c4","punta"],["Audi","R26","#d4462a","piano"],["Cadillac","MAC-26","#a08f6c","facil"]]
 };
 const PILOTO={"McLaren":"Norris","Mercedes":"Kimi Antonelli","Ferrari":"Leclerc","Williams":"Sainz","Alpine":"Gasly","Cadillac":"Pérez","Racing Bulls":"Lawson","Aston Martin":"Alonso","Red Bull":"Verstappen","Audi":"Hülkenberg","Kick Sauber":"Hülkenberg","Haas":"Bearman"};
+/* configuraciones de mando publicadas; null = la fuente no lo indica */
+const SRC1="https://simracingcockpit.gg/f1-25-controller-settings/";
+const PADS=[
+ {n:"La mía",tipo:"Mi calibración actual",src:"Foto de mi pantalla",url:null,ayudas:"sin dato",
+  cal:[160,0,6,0,0,6,0,0,5,0],vib:[null,null,null,null,null,null,null]},
+ {n:"De fábrica",tipo:"Valores iniciales del juego",src:"SimRacingCockpit",url:SRC1,ayudas:"Para empezar: control de tracción medio y ABS activado",
+  cal:[100,0,0,0,0,0,0,0,25,0],vib:[null,null,null,null,null,null,null]},
+ {n:"THOMB",tipo:"Creador de YouTube",src:"Citado por SimRacingCockpit",url:SRC1,ayudas:"No las indica",
+  cal:[120,0,30,0,null,"0 (20 si patina)",null,null,30,null],vib:["100 (120 si los gatillos se sienten débiles)",null,null,"Un poco menos que de fábrica",null,null,"320°"]},
+ {n:"Harmnn",tipo:"Creador de YouTube en consola",src:"Citado por SimRacingCockpit",url:SRC1,ayudas:"Todas desactivadas. Si eres nuevo, empieza con giro 100 o 120 y súbelo poco a poco",
+  cal:[160,0,0,0,0,0,0,1,0,0],vib:[150,"Máximo",null,null,null,null,"340°"]},
+ {n:"RacingGames",tipo:"Guía de Andrés Aquino (agosto 2026)",src:"RacingGames.gg",url:"https://racinggames.gg/article/what-are-the-best-f1-25-controller-settings",ayudas:"Tracción media, ABS activado, caja automática, línea de carrera completa",
+  cal:[115,0,20,0,0,0,30,0,0,20],vib:[130,40,50,50,50,50,"400°"]},
+ {n:"Operation Sports",tipo:"Guía de Shahmeer Shahzad",src:"Operation Sports",url:"https://www.operationsports.com/best-f1-25-controller-settings/",ayudas:"Tracción media, ABS activado, ayuda de frenada baja, línea solo en curvas, caja automática",
+  cal:[130,0,40,35,0,0,0,0,0,0],vib:[150,60,30,30,50,50,"360°"]}
+];
+const PADCAT=[
+ ["Dirección","cal",0,["Velocidad de dirección del volante","Zona muerta de la dirección","Linealidad de la dirección","Saturación de la dirección"]],
+ ["Acelerador","cal",4,["Zona muerta de la aceleración","Linealidad de la aceleración","Saturación de la aceleración"]],
+ ["Freno","cal",7,["Zona muerta del freno","Linealidad del freno","Saturación del freno"]],
+ ["Vibración","vib",0,["Intensidad general","Efectos en pista","Efectos de pianos","Efectos fuera de pista","Efectos en boxes","Amortiguación","Rotación máxima del volante"]]
+];
 const SPEC=[
  ["Aerodinámica",[["fw","Alerón delantero",0,50],["rw","Alerón trasero",0,50]]],
  ["Transmisión",[["don","Diferencial con acelerador",10,100,"%"],["doff","Diferencial sin acelerador",10,100,"%"],["eb","Frenado motor",0,100,"%"]]],
@@ -267,7 +329,8 @@ function fix(){
   if(!["quali","carrera"].includes(state.session)) state.session="quali";
   if(!["seco","mojado","tormenta"].includes(state.weather)) state.weather="seco";
   if(state.source!=="mio") state.source="web";
-  if(state.mode!=="hot") state.mode="finde";
+  if(!["hot","mando","tiempos"].includes(state.mode)) state.mode="finde";
+  if(!PADS[state.pad]) state.pad=0;
 }
 const $=id=>document.getElementById(id);
 let LEG="";
@@ -290,8 +353,13 @@ function render(){
   fix();
   seg($("season"),[["2025","2025"],["2026","2026"]],"season");
   seg($("session"),[["quali","Clasificación"],["carrera","Carrera"]],"session");
-  seg($("mode"),[["finde","Fin de semana"],["hot","Hotlap"]],"mode");
-  $("weekend").hidden=state.mode==="hot";
+  seg($("mode"),[["finde","Fin de semana"],["hot","Hotlap"],["mando","Mando"],["tiempos","Tiempos"]],"mode");
+  $("weekend").hidden=state.mode!=="finde";
+  const pad=state.mode==="mando";
+  ["season","track","cars"].forEach(id=>$(id).parentElement.hidden=pad);
+  $("padbox").hidden=!pad;
+  const times=state.mode==="tiempos";
+  $("timesbox").hidden=!times; $("brief").hidden=times; $("cats").hidden=times;
   ["web","mio"].forEach(src=>$(src).replaceChildren(...[["seco","Seco"],["mojado","Mojado"],["tormenta","Tormenta"]].map(([w,label])=>{
     const b=document.createElement("button");b.type="button";b.textContent=label;
     b.setAttribute("aria-pressed",state.source===src&&state.weather===w);
@@ -313,6 +381,8 @@ function render(){
     return b;
   }));
   $("tweak").checked=state.tweak;
+  if(pad){ renderPad(); return; }
+  if(times){ renderTimes(); return; }
   $("samecar").hidden=!(state.mode==="hot"||state.source==="web");
   if(state.mode==="hot"||state.source==="web"){ renderWeb(state.mode==="hot"); return; }
   const car=CARS[state.season][state.car], t=T[state.track], v=V[car[3]];
@@ -338,8 +408,89 @@ function render(){
   done();
 }
 function done(){
-  $("fallback").hidden=true;$("copy").textContent="Copiar setup";
+  $("fallback").hidden=true;$("copy").textContent=state.mode==="tiempos"?"Copiar tiempos":"Copiar setup";
   try{localStorage.setItem("garaje",JSON.stringify(state));}catch(e){}
+}
+const TIPS={"au": ["Curva 3: frenada fuerte; no cortes demasiado el piano interior o perderás la salida.", "Chicane rápida (curvas 9 y 10): gira con poco stick y levanta apenas si el coche se mueve.", "Última curva: sacrifica la entrada para salir derecho hacia la meta."], "cn": ["Curvas 1 a 3: la curva se va cerrando; frena mientras giras y no te quedes pegado dentro demasiado pronto.", "Curva 13: la salida manda en la recta más larga; abre gas poco a poco.", "Horquilla al final de la recta: frena derecho y suelta el gatillo antes de girar del todo."], "jp": ["Las eses: busca ritmo; sacrifica una curva para colocar bien la siguiente.", "Degner 2: frena de verdad, la grava castiga.", "Chicane final: entra tranquilo y prioriza la salida."], "bh": ["Curva 1: frenada fuerte; abre gas suave a la salida porque la trasera patina.", "Curvas 9 y 10: al frenar girando se bloquea la delantera; suelta freno antes.", "Salidas lentas: la tracción da más tiempo que la entrada."], "sa": ["Sector de eses rápidas: movimientos mínimos de stick y trazada lo más recta posible.", "Muros cerca: deja un pequeño margen en las primeras vueltas.", "Horquilla final: sal limpio, viene una zona larga a fondo."], "mi": ["Curva 1: no entres pasado; la salida conecta con curvas enlazadas.", "Chicane lenta (curvas 14 y 15): paciencia con el gas y sin saltar en los pianos.", "Horquilla tras la recta larga: frena derecho y prioriza la salida."], "im": ["Tamburello y Villeneuve: usa el piano con cuidado; los altos desestabilizan.", "Rivazza: dos izquierdas en bajada; frena antes de lo que parece.", "Variante Alta: sal recto del piano antes de acelerar."], "mc": ["Aquí gana la suavidad: acércate a los muros poco a poco, vuelta tras vuelta.", "Horquilla Loews: giro lento y completo; no aceleres hasta ver la salida.", "Piscina: entra preciso en la primera parte; un roce arruina la vuelta."], "es": ["Curva 3: derecha larga; mantén el stick constante sin correcciones.", "Curva 10: frena derecho y sal con tracción.", "Dos últimas derechas: cuida el gas, de ellas depende la recta principal."], "ca": ["Chicanes: pisa el piano interior, pero no los obstáculos altos.", "Horquilla: frena tarde solo si puedes salir derecho hacia la recta.", "Chicane final: no te acerques de más al muro de la salida."], "at": ["Curvas 1 y 3: frena derecho en subida y abre gas progresivo.", "Curva 4: bloqueo y salida de pista fáciles; suelta freno con suavidad.", "Dos últimas derechas: vigila los límites de pista."], "gb": ["Maggotts y Becketts: prioriza la salida de Chapel; la entrada puede ser conservadora.", "Copse: un solo movimiento de stick, sin sobresaltos.", "Zona de Village y The Loop: frena bien y sal ordenado hacia la recta."], "be": ["La Source: sal pegado y con tracción, la subida es larga.", "Eau Rouge y Raidillon: traza lo más recto posible y no sacudas el stick.", "Pouhon: levanta o frena apenas y mantén un giro constante."], "hu": ["Curva 1: frena derecho; abrirte de más cuesta mucho en la salida.", "Sector central: enlaza curvas; sacrifica una para salir bien de la siguiente.", "Últimas dos curvas: la salida de la última decide la recta."], "nl": ["Curva 3 peraltada: usa la parte alta o media y acelera pronto.", "Curva 7: rápida y ciega; mira la salida y corrige poco.", "Última peraltada: gas progresivo hasta fondo."], "it": ["Primera chicane: frena fuerte y derecho; no ataques el piano alto.", "Lesmos: frena un poco antes y sal con mucho gas.", "Ascari y Parabolica: la salida vale más que la entrada."], "md": ["Circuito nuevo: haz primero vueltas lentas para ubicar frenadas.", "La Monumental: curva larga peraltada; mantén el stick estable y busca una línea constante.", "En las curvas lentas junto a muros, prioriza salir recto."], "az": ["Frenadas de 90 grados: frena derecho y deja margen al muro.", "Zona del castillo: muy estrecha; entra lento y preciso.", "Última parte: la salida antes de la gran recta es lo más importante."], "sg": ["Muchas frenadas: usa el mismo punto en cada vuelta antes de buscar más.", "Pianos y muros: gira suave y sin cortar de más.", "Cuida la trasera al acelerar en las salidas lentas."], "us": ["Curva 1: frena en subida y gira tarde hacia el vértice.", "Eses del primer sector: ritmo; sacrifica la entrada de una para la siguiente.", "Curva 11: la salida decide la recta larga."], "mx": ["Hay poco agarre por la altura: frena antes y acelera con suavidad.", "Eses centrales: poco stick y sin brincar en los pianos.", "Estadio: paso lento y limpio para salir bien hacia la parte final."], "br": ["S de Senna: sacrifica la primera para salir bien de la segunda.", "Curva 4: buen punto para frenar tarde, pero sal derecho.", "Junção: salida clave para toda la subida hasta meta."], "lv": ["Poca adherencia: las frenadas largas bloquean fácil; suelta el gatillo antes.", "Chicanes: línea recta sobre pianos bajos.", "Prioriza las salidas hacia las rectas largas."], "qa": ["Curvas rápidas enlazadas: stick constante y sin correcciones.", "Triple derecha (curvas 12 a 14): trátala como una sola curva.", "Respeta los límites de pista a la salida."], "ae": ["Horquilla antes de la recta larga: la salida vale mucho tiempo.", "Curva peraltada tras las rectas: apóyate en el peralte y acelera progresivo.", "Último sector: curvas lentas, cuida la tracción."], "my": ["Sepang no está en F1 25: estos consejos solo sirven con un mod.", "Curvas 1 y 2: frena tarde pero sacrifica la primera para salir de la segunda.", "Horquilla final: salida limpia hacia la recta principal."]};
+/* tiempos guardados en este dispositivo */
+const TKEY="garaje-tiempos";
+let laps=[];
+try{ const a=JSON.parse(localStorage.getItem(TKEY)||"[]"); if(Array.isArray(a)) laps=a; }catch(e){}
+function saveLaps(){ try{localStorage.setItem(TKEY,JSON.stringify(laps));return true;}catch(e){return false;} }
+function parseLap(str){
+  const x=str.trim();
+  let m=x.match(/^(\d{1,2})[:.,' ](\d{2})[.,:](\d{3})$/)||x.match(/^(\d)(\d{2})(\d{3})$/);
+  if(!m){ const q=x.match(/^(\d{2})[.,]?(\d{3})$/); if(q) m=[x,"0",q[1],q[2]]; }
+  if(!m||+m[2]>59) return null;
+  const ms=(+m[1])*60000+(+m[2])*1000+(+m[3]);
+  return ms>0?ms:null;
+}
+const lapText=ms=>Math.floor(ms/60000)+":"+String(Math.floor(ms/1000)%60).padStart(2,"0")+"."+String(ms%1000).padStart(3,"0");
+function lapRow(title,detail,onDelete){
+  const d=document.createElement("div"); d.className="lap";
+  const b=document.createElement("b"); b.textContent=title;
+  const sm=document.createElement("small"); sm.textContent=detail; d.append(b,sm);
+  if(onDelete){
+    const k=document.createElement("button"); k.type="button"; k.textContent="Borrar";
+    k.onclick=()=>{ if(k.dataset.sure){onDelete();} else {k.dataset.sure="1";k.textContent="¿Seguro?";} };
+    d.append(k);
+  }
+  return d;
+}
+const empty=msg=>{const e=document.createElement("p");e.textContent=msg;return e;};
+function renderTimes(){
+  const car=CARS[state.season][state.car], t=T[state.track];
+  document.documentElement.style.setProperty("--team",car[2]);
+  $("samecar").hidden=true; $("notice").hidden=true;
+  $("title").textContent=t.n+" · Tiempos";
+  $("meta").textContent=car[0]+" "+car[1]+" · "+t.c+" · Temporada "+state.season;
+  const here=laps.filter(l=>l.y===state.season&&l.t===state.track).sort((a,b)=>a.ms-b.ms);
+  const top={}; here.forEach(l=>{ if(!(l.wx in top)) top[l.wx]=l.ms; });
+  $("tlist").replaceChildren(...(here.length?here.map(l=>{
+    const gap=l.ms===top[l.wx]?"Mejor en "+l.wx.toLowerCase():"+"+((l.ms-top[l.wx])/1000).toFixed(3);
+    return lapRow(lapText(l.ms),[gap,l.ses,l.wx,l.car,l.date,l.note].filter(Boolean).join(" · "),()=>{laps=laps.filter(x=>x.id!==l.id);saveLaps();render();});
+  }):[empty("Todavía no hay tiempos. Escribe tu primera vuelta arriba.")]));
+  $("ttips").replaceChildren(...TIPS[state.track].map(x=>{const li=document.createElement("li");li.textContent=x;return li;}));
+  const best=new Map();
+  laps.filter(l=>l.y===state.season&&T[l.t]).forEach(l=>{const k=l.t+"|"+l.wx;if(!best.has(k)||l.ms<best.get(k).ms) best.set(k,l);});
+  const order=ids(state.season);
+  const rows=[...best.values()].sort((a,b)=>order.indexOf(a.t)-order.indexOf(b.t));
+  $("tbest").replaceChildren(...(rows.length?rows.map(l=>lapRow(lapText(l.ms),[T[l.t].n,l.wx,l.ses,l.car].join(" · "))):[empty("Aquí aparecerá tu mejor vuelta de cada circuito.")]));
+  $("legend").textContent="Los tiempos se guardan solo en este dispositivo. Los consejos son generales, escritos para esta app y sin probar en el juego.";
+  $("copy").hidden=!laps.length;
+  text="Mis tiempos\n"+laps.map(l=>[l.y,T[l.t]?T[l.t].n:l.t,lapText(l.ms),l.ses,l.wx,l.car,l.date,l.note].filter(Boolean).join(" · ")).join("\n");
+  done();
+}
+function addLap(e){
+  e.preventDefault();
+  const ms=parseLap($("tlap").value);
+  if(ms===null){ $("tmsg").textContent="No entendí el tiempo. Escribe 123456 para 1:23.456."; return; }
+  const car=CARS[state.season][state.car];
+  laps.push({id:Date.now()+"-"+Math.random().toString(36).slice(2,7),y:state.season,t:state.track,ms:ms,ses:$("tses").value,wx:$("twx").value,car:car[0],note:$("tnote").value.trim(),date:new Date().toLocaleDateString("es-MX")});
+  const ok=saveLaps();
+  $("tlap").value=""; $("tnote").value="";
+  render();
+  $("tmsg").textContent=ok?"Guardado: "+lapText(ms):"Este navegador no dejó guardar; el tiempo se perderá al cerrar.";
+}
+function renderPad(){
+  const p=PADS[state.pad];
+  document.documentElement.style.setProperty("--team","#7d8894");
+  $("pads").replaceChildren(...PADS.map((q,i)=>{
+    const b=document.createElement("button");b.type="button";b.innerHTML="<span>"+q.n+"<small>"+q.tipo+"</small></span>";
+    b.setAttribute("aria-pressed",i===state.pad);
+    b.onclick=()=>{state.pad=i;render();$("pads").children[i].focus();};
+    return b;
+  }));
+  $("title").textContent="Mando · "+p.n; $("meta").textContent=p.tipo;
+  $("notice").hidden=!p.url;
+  $("notice").textContent="No encontré configuraciones de mando verificadas de pilotos profesionales de esports. Estas vienen de creadores de YouTube, guías y la de fábrica.";
+  $("brief").innerHTML="<div><dt>Fuente</dt><dd>"+(p.url?"<a href='"+p.url+"' target='_blank' rel='noopener'>"+p.src+"</a>":p.src)+"</dd></div><div><dt>Ayudas</dt><dd>"+p.ayudas+"</dd></div>";
+  const val=(v,i)=>v===null?"sin dato":String(v)+(i==="rate"?"%":"");
+  const cats=PADCAT.map(([cat,key,start,labels])=>[cat,labels.map((l,i)=>[l,val(p[key][start+i],key==="cal"&&start+i===0?"rate":"")])]).filter(c=>c[1].some(r=>r[1]!=="sin dato"));
+  $("cats").innerHTML=cats.map(([cat,rows])=>"<section class='cat'><h3>"+cat+"</h3>"+rows.map(([l,v])=>"<div class='row"+(v.length>10?" long":"")+"'><span>"+l+"</span><b>"+v+"</b></div>").join("")+"</section>").join("");
+  $("legend").textContent="Anota tus valores actuales antes de cambiarlos. Prueba un perfil varias vueltas en contrarreloj antes de pasar a otro.";
+  text=$("title").textContent+"\n"+p.tipo+"\nAyudas: "+p.ayudas+"\n"+cats.map(([cat,rows])=>"\n"+cat.toUpperCase()+"\n"+rows.map(r=>r[0]+": "+r[1]).join("\n")).join("\n");
+  done();
 }
 function renderWeb(hot){
   const t=T[state.track], w=hot?"seco":state.weather;
@@ -374,6 +525,8 @@ $("copy").onclick=()=>{
   try{navigator.clipboard.writeText(text).then(()=>{$("copy").textContent="Copiado";},fail);}catch(e){fail();}
 };
 LEG=$("legend").innerHTML;
+$("tform").onsubmit=addLap;
+$("track").addEventListener("change",()=>$("tmsg").textContent="");
 render();
 </script>
 <script>if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});</script>
